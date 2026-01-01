@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>Monopoly TG Test</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body style="background:#111;color:white;text-align:center;padding:40px">
+
+<h2>🎲 Monopoly TG — TEST</h2>
+
+<p id="user"></p>
+<p id="chat"></p>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  document.getElementById('user').innerText =
+    'Користувач: ' + (tg.initDataUnsafe.user?.first_name || 'невідомо');
+
+  document.getElementById('chat').innerText =
+    'Chat ID: ' + (tg.initDataUnsafe.chat?.id || 'немає');
+</script>
+
+</body>
+</html>
