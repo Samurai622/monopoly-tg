@@ -1,14 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Монополія — фото клітинки</title>
+<style>
+body {
+  background: #0f172a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: sans-serif;
+}
+
+.cell {
+  width: 120px;
+  height: 120px;
+  background-color: #1e293b; /* колір на випадок, якщо картинка не завантажилась */
+  border: 2px solid #334155;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  position: relative;
+  background-size: cover;     /* картинка займає всю клітинку */
+  background-position: center;
+  background-repeat: no-repeat;
+  font-weight: bold;
+  font-size: 22px;
+  box-sizing: border-box;
+}
+
+.token {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+}
+.red { background: red; }
+.blue { background: dodgerblue; }
+</style>
+</head>
 <body>
-<h1>Monopoly</h1>
-<p id="user"></p>
+
+<div id="board"></div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.ready();
-document.getElementById('user').innerText =
-  `Гравець: ${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}`;
+const board = document.getElementById("board");
+
+/* Дані для однієї клітинки */
+const cellData = {
+  //name: "Київ",
+  img: "https://media.istockphoto.com/id/1363984765/photo/independence-monument-in-kyiv-view-from-drone.jpg?s=612x612&w=0&k=20&c=9gKqN_GEG603voLchxrkV7gE9rmX39w2TTKjAd1Pvuc=", // тестова картинка
+  color: "#f97316" // помаранчевий фон групи
+};
+
+/* Створюємо клітинку */
+const cell = document.createElement("div");
+cell.className = "cell";
+cell.style.backgroundImage = `url('${cellData.img}')`; // картинка на всю клітинку
+//cell.innerText = cellData.name; // назва поверх картинки
+board.appendChild(cell);
+
+/* Додаємо фішку */
+const token = document.createElement("div");
+token.className = "token red";
+cell.appendChild(token);
 </script>
+
 </body>
 </html>
