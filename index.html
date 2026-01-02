@@ -1,76 +1,182 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-<meta charset="UTF-8">
-<title>Монополія — фото клітинки</title>
-<style>
-body {
-  background: #0f172a;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-family: sans-serif;
-}
+  <!DOCTYPE html>
+  <html lang="uk">
+  <head>
+  <meta charset="UTF-8">
+  <title>Monopoly TG</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-.cell {
-  width: 120px;
-  height: 120px;
-  background-color: #1e293b; /* колір на випадок, якщо картинка не завантажилась */
-  border: 2px solid #334155;
-  display: flex;
-  justify-content: center;
-  align-items: end;
-  color: white;
-  text-align: center;
-  padding: 5px;
-  position: relative;
-  background-size: cover;     /* картинка займає всю клітинку */
-  background-position: center;
-  background-repeat: no-repeat;
-  font-weight: bold;
-  font-size: 22px;
-  box-sizing: border-box;
-}
+  <style>
+  body {
+    margin: 0;
+    background: #0f172a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: sans-serif;
+  }
 
-.token {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-}
-.red { background: red; }
-.blue { background: dodgerblue; }
-</style>
-</head>
-<body>
+  /* Дошка 11x11 */
+  #board {
+    width: 90vmin;
+    height: 90vmin;
+    background: #020617;
+    display: grid;
+    grid-template-columns: 2fr repeat(9, 1fr) 2fr;
+    grid-template-rows: 2fr repeat(9, 1fr) 2fr;
+    gap: 2px;
+  }
 
-<div id="board"></div>
+  /* Клітинка */
+  .cell {
+    border: 1px solid #334155;
+    font-size: 8px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    line-height: 1.1;
+    word-break: break-word;
+    padding: 2px;
+    position: relative;
 
-<script>
-const board = document.getElementById("board");
+    background-size: cover;      /* картинка займає всю клітинку */
+    background-position: center;
+    background-repeat: no-repeat;
+    font-weight: bold;
+  }
 
-/* Дані для однієї клітинки */
-const cellData = {
-  //name: "Київ",
-  img: "https://media.istockphoto.com/id/1363984765/photo/independence-monument-in-kyiv-view-from-drone.jpg?s=612x612&w=0&k=20&c=9gKqN_GEG603voLchxrkV7gE9rmX39w2TTKjAd1Pvuc=", // тестова картинка
-  color: "#f97316" // помаранчевий фон групи
-};
+  /* Центр */
+  #center {
+    grid-column: 2 / 11;
+    grid-row: 2 / 11;
+    background: #020617;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #38bdf8;
+    font-size: 24px;
+  }
 
-/* Створюємо клітинку */
-const cell = document.createElement("div");
-cell.className = "cell";
-cell.style.backgroundImage = `url('${cellData.img}')`; // картинка на всю клітинку
-//cell.innerText = cellData.name; // назва поверх картинки
-board.appendChild(cell);
+  /* Фішки */
+  .token {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+  }
+  .red { background: red; }
+  .blue { background: dodgerblue; }
+  .green { background: limegreen; }
+  .yellow { background: gold; }
 
-/* Додаємо фішку */
-const token = document.createElement("div");
-token.className = "token red";
-cell.appendChild(token);
-</script>
+  </style>
+  </head>
 
-</body>
-</html>
+  <body>
+  <div id="board">
+    <div id="center">MONOPOLY</div>
+  </div>
+
+  <script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  const board = document.getElementById("board");
+
+  /* Масив клітинок з назвами і фон-картинками */
+  const cellsData = [
+    {name:"Start", img:"images/start.png"},
+    {name:"Marvel", img:"images/marvel.png"},
+    {name:"Pixar", img:"images/pixar.png"},
+    {name:"Task", img:"images/task(down).png"},
+    {name:"GiveUser", img:"images/giveuser.png"},
+    {name:"Audi", img:"images/audi.png"},
+    {name:"Sprite", img:"images/sprite.png"},
+    {name:"Fanta", img:"images/fanta.png"},
+    {name:"Minecraft", img:"images/minecraft.png"},
+    {name:"CocaCola", img:"images/cocacola.png"},
+    
+    {name:"Casino", img:"images/casino.png"},
+    {name:"Starbucks", img:"images/starbucks.png"},
+    {name:"Task", img:"images/task(left).png"},
+    {name:"Blue Bottle Coffee", img:"images/bluebottlecoffee.png"},
+    {name:"Lavazza", img:"images/lavazza.png"},
+    {name:"BMW", img:"images/bmw.png"},
+    {name:"McDonalds", img:"images/mcdonalds.png"},
+    {name:"KFS", img:"images/kfs.png"},
+    {name:"Task", img:"images/task(left).png"},
+    {name:"Pizza Hut", img:"images/pizza hut.png"},
+    
+    {name:"Jail", img:"images/jail.png"},
+    {name:"Telegram", img:"images/telegram.png"},
+    {name:"WhatsApp", img:"images/whatsapp.png"},
+    {name:"Instagram", img:"images/instagram.png"},
+    {name:"Task", img:"images/task(down).png"},
+    {name:"Lamborghini", img:"images/lamborghini.png"},
+    {name:"Give to bank", img:"images/givebank.png"},
+    {name:"Apple", img:"images/apple.png"},
+    {name:"Task", img:"images/task(down).png"},
+    {name:"PlayStation", img:"images/ps.png"},
+
+    {name:"GoJail", img:"images/gojail.png"},
+    {name:"Yakuza", img:"images/yakuza.png"},
+    {name:"Assassin's Creed", img:"images/ac.png"},
+    {name:"Cosa Nostra", img:"images/cosa nostra.png"},
+    {name:"Triads", img:"images/triads.png"},
+    {name:"Mersedes-Benz", img:"images/mercedes-benz.png"},
+    {name:"Gucci", img:"images/gucci.png"},
+    {name:"Task", img:"images/task(right).png"},
+    {name:"Nike", img:"images/nike.png"},
+    {name:"Adidas", img:"images/adidas.png"}
+  ];
+
+  /* Створюємо клітинки */
+  const cells = [];
+  cellsData.forEach((data, i) => {
+    const cell = document.createElement("div");
+    cell.className = `cell`;
+    cell.dataset.id = i;
+    //cell.innerText = data.name; // текст по центру
+    cell.style.backgroundImage = `url('${data.img}')`; // фонова картинка
+    cells.push(cell);
+    board.appendChild(cell);
+  });
+
+  /* Розкладка клітинок по 11x11 */
+  cells.forEach((cell, i) => {
+    let row, col;
+
+    if (i <= 10) {             // низ
+      row = 11;
+      col = 11 - i;
+    } else if (i <= 20) {      // ліво
+      row = 21 - i;
+      col = 1;
+    } else if (i <= 30) {      // верх
+      row = 1;
+      col = i - 19;
+    } else {                   // право
+      row = i - 29;
+      col = 11;
+    }
+
+    cell.style.gridRow = row;
+    cell.style.gridColumn = col;
+  });
+
+  /* Тестові фішки */
+  function addToken(cellId, color) {
+    const token = document.createElement("div");
+    token.className = `token ${color}`;
+    document.querySelector(`[data-id="${cellId}"]`).appendChild(token);
+  }
+
+  addToken(0, "red");
+  addToken(0, "blue");
+  </script>
+  </body>
+  </html>
