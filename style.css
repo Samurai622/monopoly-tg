@@ -1,0 +1,127 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #020617;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+  color: white;
+  overflow: hidden;
+}
+
+/* ===== ЛЕЙАУТ ===== */
+#app {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ===== ПАНЕЛЬ ГРАВЦІВ ===== */
+#players {
+  width: 260px;
+  background: #020617;
+  border-right: 2px solid #1e293b;
+  padding: 12px;
+}
+
+#players h2 {
+  text-align: center;
+  color: #38bdf8;
+  margin-bottom: 10px;
+}
+
+.player {
+  border: 1px solid #334155;
+  border-left: 6px solid gray;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.player.active {
+  border-color: #38bdf8;
+  background: #082f49;
+}
+
+.money {
+  font-size: 12px;
+  color: #a5b4fc;
+}
+
+/* ===== ЦЕНТР ===== */
+#game {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ===== ДОШКА ===== */
+#board {
+  width: 90vmin;
+  height: 90vmin;
+  display: grid;
+  grid-template-columns: 2fr repeat(9, 1fr) 2fr;
+  grid-template-rows: 2fr repeat(9, 1fr) 2fr;
+  gap: 2px;
+}
+
+/* ===== КЛІТИНКИ ===== */
+.cell {
+  border: 1px solid #334155;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+
+/* ===== ЦЕНТР ===== */
+#center {
+  grid-column: 2 / 11;
+  grid-row: 2 / 11;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  color: #38bdf8;
+}
+
+/* ===== ФІШКИ ===== */
+.token {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+}
+
+.red { background: red; }
+.blue { background: dodgerblue; }
+.green { background: limegreen; }
+.yellow { background: gold; }
+
+#controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: #020617;
+  border: 1px solid #334155;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+#rollBtn {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#diceResult {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #38bdf8;
+}
+
