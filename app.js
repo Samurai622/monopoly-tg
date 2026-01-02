@@ -1,137 +1,149 @@
 
 const tg = window.Telegram.WebApp;
 tg.expand();
+let myTgId = null;
+
+if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe?.user) {
+  myTgId = Telegram.WebApp.initDataUnsafe.user.id;
+} else {
+  // режим браузера (для тестів)
+  myTgId = 111; // тимчасовий id
+  console.warn("Не Telegram — тестовий режим");
+}
 
 
-  /* Масив клітинок з назвами і фон-картинками */
-  const cellsData = [
-    {name:"Start", img:"images/start.png"},
-    {name:"Marvel", img:"images/marvel.png"},
-    {name:"Pixar", img:"images/pixar.png"},
-    {name:"Task", img:"images/task(down).png"},
-    {name:"GiveUser", img:"images/giveuser.png"},
-    {name:"Audi", img:"images/audi.png"},
-    {name:"Sprite", img:"images/sprite.png"},
-    {name:"Fanta", img:"images/fanta.png"},
-    {name:"Minecraft", img:"images/minecraft.png"},
-    {name:"CocaCola", img:"images/cocacola.png"},
-    
-    {name:"Casino", img:"images/casino.png"},
-    {name:"Starbucks", img:"images/starbucks.png"},
-    {name:"Task", img:"images/task(left).png"},
-    {name:"Blue Bottle Coffee", img:"images/bluebottlecoffee.png"},
-    {name:"Lavazza", img:"images/lavazza.png"},
-    {name:"BMW", img:"images/bmw.png"},
-    {name:"McDonalds", img:"images/mcdonalds.png"},
-    {name:"KFS", img:"images/kfs.png"},
-    {name:"Task", img:"images/task(left).png"},
-    {name:"Pizza Hut", img:"images/pizza hut.png"},
-    
-    {name:"Jail", img:"images/jail.png"},
-    {name:"Telegram", img:"images/telegram.png"},
-    {name:"WhatsApp", img:"images/whatsapp.png"},
-    {name:"Instagram", img:"images/instagram.png"},
-    {name:"Task", img:"images/task(down).png"},
-    {name:"Lamborghini", img:"images/lamborghini.png"},
-    {name:"Give to bank", img:"images/givebank.png"},
-    {name:"Apple", img:"images/apple.png"},
-    {name:"Task", img:"images/task(down).png"},
-    {name:"PlayStation", img:"images/ps.png"},
+/* Масив клітинок з назвами і фон-картинками */
+const cellsData = [
+{name:"Start", img:"images/start.png"},
+{name:"Marvel", img:"images/marvel.png"},
+{name:"Pixar", img:"images/pixar.png"},
+{name:"Task", img:"images/task(down).png"},
+{name:"GiveUser", img:"images/giveuser.png"},
+{name:"Audi", img:"images/audi.png"},
+{name:"Sprite", img:"images/sprite.png"},
+{name:"Fanta", img:"images/fanta.png"},
+{name:"Minecraft", img:"images/minecraft.png"},
+{name:"CocaCola", img:"images/cocacola.png"},
 
-    {name:"GoJail", img:"images/gojail.png"},
-    {name:"Yakuza", img:"images/yakuza.png"},
-    {name:"Assassin's Creed", img:"images/ac.png"},
-    {name:"Cosa Nostra", img:"images/cosa nostra.png"},
-    {name:"Triads", img:"images/triads.png"},
-    {name:"Mersedes-Benz", img:"images/mercedes-benz.png"},
-    {name:"Gucci", img:"images/gucci.png"},
-    {name:"Task", img:"images/task(right).png"},
-    {name:"Nike", img:"images/nike.png"},
-    {name:"Adidas", img:"images/adidas.png"}
-  ];
+{name:"Casino", img:"images/casino.png"},
+{name:"Starbucks", img:"images/starbucks.png"},
+{name:"Task", img:"images/task(left).png"},
+{name:"Blue Bottle Coffee", img:"images/bluebottlecoffee.png"},
+{name:"Lavazza", img:"images/lavazza.png"},
+{name:"BMW", img:"images/bmw.png"},
+{name:"McDonalds", img:"images/mcdonalds.png"},
+{name:"KFS", img:"images/kfs.png"},
+{name:"Task", img:"images/task(left).png"},
+{name:"Pizza Hut", img:"images/pizza hut.png"},
 
-  const board = document.getElementById("board");
-  const cells = [];
+{name:"Jail", img:"images/jail.png"},
+{name:"Telegram", img:"images/telegram.png"},
+{name:"WhatsApp", img:"images/whatsapp.png"},
+{name:"Instagram", img:"images/instagram.png"},
+{name:"Task", img:"images/task(down).png"},
+{name:"Lamborghini", img:"images/lamborghini.png"},
+{name:"Give to bank", img:"images/givebank.png"},
+{name:"Apple", img:"images/apple.png"},
+{name:"Task", img:"images/task(down).png"},
+{name:"PlayStation", img:"images/ps.png"},
 
+{name:"GoJail", img:"images/gojail.png"},
+{name:"Yakuza", img:"images/yakuza.png"},
+{name:"Assassin's Creed", img:"images/ac.png"},
+{name:"Cosa Nostra", img:"images/cosa nostra.png"},
+{name:"Triads", img:"images/triads.png"},
+{name:"Mersedes-Benz", img:"images/mercedes-benz.png"},
+{name:"Gucci", img:"images/gucci.png"},
+{name:"Task", img:"images/task(right).png"},
+{name:"Nike", img:"images/nike.png"},
+{name:"Adidas", img:"images/adidas.png"}
+];
 
-  cellsData.forEach((data, i) => {
-    const cell = document.createElement("div");
-    cell.className = `cell`;
-    cell.dataset.id = i;
-    cell.style.backgroundImage = `url('${data.img}')`; // фонова картинка
-    cells.push(cell);
-    board.appendChild(cell);
-  });
-
-  /* Розкладка клітинок по 11x11 */
-  cells.forEach((cell, i) => {
-    let row, col;
-
-    if (i <= 10) {             // низ
-      row = 11;
-      col = 11 - i;
-    } else if (i <= 20) {      // ліво
-      row = 21 - i;
-      col = 1;
-    } else if (i <= 30) {      // верх
-      row = 1;
-      col = i - 19;
-    } else {                   // право
-      row = i - 29;
-      col = 11;
-    }
-
-    cell.style.gridRow = row;
-    cell.style.gridColumn = col;
-  });
-
-  const players = [
-    {name: "Player 1", color: "red", money: 1500, pos: 0},
-    {name: "Player 2", color: "blue", money: 1500, pos: 0}
-  ]
-
-  const playersBox = document.getElementById("players");
-
-  let currentTurn = 0;
-
-  function renderPlayers() {
-    playersBox.innerHTML = "<h2>Гравці</h2>";
-
-    document.querySelectorAll(".token").forEach(t => t.remove());
-
-    players.forEach((p, i) => {
-        const div = document.createElement("div");
-        div.className = "player" + (i === currentTurn ? " active" : "");
-        div.style.borderLeftColor = p.color;
-
-        div.innerHTML = `
-        <b>${p.name}</b>
-        <div class="money">💰 ${p.money}</div>
-        `;
-
-        playersBox.appendChild(div);
-        addToken(p.pos, p.color);
-    });
-  }
-    renderPlayers();
+const board = document.getElementById("board");
+const cells = [];
 
 
-  /* Тестові фішки */
-  function addToken(cellId, color) {
-    const cell = document.querySelector(`[data-id='${cellId}']`);
-    if (!cell) return;
+cellsData.forEach((data, i) => {
+const cell = document.createElement("div");
+cell.className = `cell`;
+cell.dataset.id = i;
+cell.style.backgroundImage = `url('${data.img}')`; // фонова картинка
+cells.push(cell);
+board.appendChild(cell);
+});
 
-    const token = document.createElement("div");
-    token.className = `token ${color}`;
-    cell.appendChild(token);
-  }
+/* Розкладка клітинок по 11x11 */
+cells.forEach((cell, i) => {
+let row, col;
 
-    const rollBtn = document.getElementById("rollBtn");
-    const diceResult = document.getElementById("diceResult");
+if (i <= 10) {             // низ
+    row = 11;
+    col = 11 - i;
+} else if (i <= 20) {      // ліво
+    row = 21 - i;
+    col = 1;
+} else if (i <= 30) {      // верх
+    row = 1;
+    col = i - 19;
+} else {                   // право
+    row = i - 29;
+    col = 11;
+}
 
-    rollBtn.addEventListener("click", rollDice);
+cell.style.gridRow = row;
+cell.style.gridColumn = col;
+});
+const players = [
+{name: "Player 1", color: "red", money: 1500, pos: 0, tgId: 111},
+{name: "Player 2", color: "blue", money: 1500, pos: 0, tgId: 222}
+]
+const myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
+const playersBox = document.getElementById("players");
+const rollBtn = document.getElementById("rollBtn");
+const diceResult = document.getElementById("diceResult");
+let currentTurn = 0;
 
-    function rollDice() {
+function renderPlayers() {
+playersBox.innerHTML = "<h2>Гравці</h2>";
+
+document.querySelectorAll(".token").forEach(t => t.remove());
+
+players.forEach((p, i) => {
+    const div = document.createElement("div");
+    div.className = "player" + (i === currentTurn ? " active" : "");
+    div.style.borderLeftColor = p.color;
+
+    div.innerHTML = `
+    <b>${p.name}</b>
+    <div class="money">💰 ${p.money}</div>
+    `;
+
+    playersBox.appendChild(div);
+    addToken(p.pos, p.color);
+});
+updateRollButton();
+}
+renderPlayers();
+updateRollButton();
+
+
+/* Тестові фішки */
+function addToken(cellId, color) {
+const cell = document.querySelector(`[data-id='${cellId}']`);
+if (!cell) return;
+
+const token = document.createElement("div");
+token.className = `token ${color}`;
+cell.appendChild(token);
+}
+
+rollBtn.addEventListener("click", rollDice);
+let isRolling = false;
+
+function rollDice() {
+    if (currentTurn !== myPlayerIndex) return;
+    if (isRolling) return;
+    isRolling = true;
     const d1 = rand(1, 6);
     const d2 = rand(1, 6);
     const steps = d1 + d2;
@@ -142,14 +154,26 @@ tg.expand();
 
     // наступний гравець
     currentTurn = (currentTurn + 1) % players.length;
-    renderPlayers();
-    }
+    setTimeout(() => {
+        isRolling = false;
+        renderPlayers();
+    }, 500);
+}
 
-    function rand(min, max) {
+function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+}
 
-    function movePlayer(playerIndex, steps) {
-      players[playerIndex].pos =
-        (players[playerIndex].pos + steps) % cellsData.length;
+function movePlayer(playerIndex, steps) {
+    players[playerIndex].pos =
+    (players[playerIndex].pos + steps) % cellsData.length;
+}
+
+
+function updateRollButton() {
+    if(currentTurn === myPlayerIndex) {
+        rollBtn.style.display = "block";
+    } else {
+        rollBtn.style.display = "none";
     }
+}
