@@ -94,8 +94,6 @@ cell.style.gridRow = row;
 cell.style.gridColumn = col;
 });
 const players = [
-{name: "Player 1", color: "red", money: 1500, pos: 0, tgId: 111},
-{name: "Player 2", color: "blue", money: 1500, pos: 0, tgId: 222}
 ]
 const myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
 const playersBox = document.getElementById("players");
