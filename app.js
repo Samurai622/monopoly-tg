@@ -1,15 +1,19 @@
-
 const tg = window.Telegram.WebApp;
 tg.expand();
-let myTgId = null;
 
-if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe?.user) {
-  myTgId = Telegram.WebApp.initDataUnsafe.user.id;
-} else {
-  // режим браузера (для тестів)
-  myTgId = 111; // тимчасовий id
-  console.warn("Не Telegram — тестовий режим");
+if (!tg.initDataUnsafe?.user) {
+  alert("Відкрий гру через Telegram");
+  throw new Error("No Telegram user");
 }
+
+const myTgId = tg.initDataUnsafe.user.id;
+const chatId = tg.initDataUnsafe.chat?.id;
+
+if (!chatId) {
+  alert("Немає chatId. Відкрий гру з групи / чату");
+  throw new Error("No chatId");
+}
+const API = 'http://localhost:3000';
 
 
 /* Масив клітинок з назвами і фон-картинками */
@@ -93,9 +97,9 @@ if (i <= 10) {             // низ
 cell.style.gridRow = row;
 cell.style.gridColumn = col;
 });
-const players = [
+let players = [
 ]
-const myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
+let myPlayerIndex = -1;
 const playersBox = document.getElementById("players");
 const rollBtn = document.getElementById("rollBtn");
 const diceResult = document.getElementById("diceResult");
@@ -121,8 +125,7 @@ players.forEach((p, i) => {
 });
 updateRollButton();
 }
-renderPlayers();
-updateRollButton();
+
 
 
 /* Тестові фішки */
@@ -138,7 +141,7 @@ cell.appendChild(token);
 rollBtn.addEventListener("click", rollDice);
 let isRolling = false;
 
-function rollDice() {
+async function rollDice() {
     if (currentTurn !== myPlayerIndex) return;
     if (isRolling) return;
     isRolling = true;
@@ -148,26 +151,41 @@ function rollDice() {
 
     diceResult.innerText = `🎲 ${d1} + ${d2} = ${steps}`;
 
-    movePlayer(currentTurn, steps);
+    await movePlayer(currentTurn, steps);
 
     // наступний гравець
     currentTurn = (currentTurn + 1) % players.length;
-    setTimeout(() => {
-        isRolling = false;
-        renderPlayers();
-    }, 500);
+    renderPlayers();
+    isRolling = false;
+
+    await fetch(`${API}/room/${chatId}/move`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        playerId: myTgId,
+        pos: players[myPlayerIndex].pos,
+        money: players[myPlayerIndex].money,
+        currentTurn: currentTurn
+      })
+    });
 }
 
 function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function movePlayer(playerIndex, steps) {
-    players[playerIndex].pos =
-    (players[playerIndex].pos + steps) % cellsData.length;
+async function movePlayer(playerIndex, steps) {
+    for (let i = 0; i < steps; i++) {
+        players[playerIndex].pos =
+            (players[playerIndex].pos + 1) % cellsData.length;
+
+        renderPlayers();
+
+        await sleep(300);
+    }
 }
 
-
+    
 function updateRollButton() {
     if(currentTurn === myPlayerIndex) {
         rollBtn.style.display = "block";
@@ -175,3 +193,43 @@ function updateRollButton() {
         rollBtn.style.display = "none";
     }
 }
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function connectToServer() {
+  // 1. POST до кімнати
+  await fetch(`${API}/room/${chatId}/join`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      id: myTgId,
+      name: "Player " + myTgId
+    })
+  });
+
+  // 2. GET стан кімнати
+  const res = await fetch(`${API}/room/${chatId}`);
+  const room = await res.json();
+
+  if (!room.players) {
+    console.error("room.players немає", room);
+    return;
+  }
+
+  players = room.players.map(p => ({
+    name: p.name,
+    pos: p.pos,
+    money: p.money,
+    color: p.color,
+    tgId: p.id
+  }));
+
+  myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
+  currentTurn = room.currentTurn || 0;
+
+  renderPlayers();
+
+}
+connectToServer();
