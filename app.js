@@ -219,8 +219,11 @@ async function connectToServer() {
   myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
   currentTurn = room.currentTurn || 0;
 
+  if(myPlayerIndex === -1) {
+    alert("Ви не в цій кімнаті");
+  }
+  
   renderPlayers();
 
 }
 connectToServer();
-console.log(rooms, room);
