@@ -7,7 +7,8 @@ if (!tg.initDataUnsafe?.user) {
 }
 
 const myTgId = tg.initDataUnsafe.user.id;
-const chatId = tg.initDataUnsafe.chat?.id;
+const urlParams = new URLSearchParams(window.location.search);
+const chatId = urlParams.get('chatId');
 
 if (!chatId) {
   alert("Немає chatId. Відкрий гру з групи / чату");
