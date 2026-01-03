@@ -14,7 +14,7 @@ if (!chatId) {
   alert("Немає chatId. Відкрий гру з групи / чату");
   throw new Error("No chatId");
 }
-const API = 'http://localhost:3000';
+const API = 'https://95c153403893.ngrok-free.app';
 
 
 /* Масив клітинок з назвами і фон-картинками */
