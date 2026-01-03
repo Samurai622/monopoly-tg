@@ -200,17 +200,6 @@ function sleep(ms) {
 }
 
 async function connectToServer() {
-  // 1. POST до кімнати
-  await fetch(`${API}/room/${chatId}/join`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      id: myTgId,
-      name: "Player " + myTgId
-    })
-  });
-
-  // 2. GET стан кімнати
   const res = await fetch(`${API}/room/${chatId}`);
   const room = await res.json();
 
