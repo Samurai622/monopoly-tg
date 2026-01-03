@@ -223,3 +223,4 @@ async function connectToServer() {
 
 }
 connectToServer();
+console.log(rooms, room);
