@@ -201,12 +201,20 @@ function sleep(ms) {
 
 async function connectToServer() {
   const res = await fetch(`${API}/room/${chatId}`);
-  const room = await res.json();
+  const text = await res.json();
+  alert(text);
 
+
+  let room;
+  try{
+    room = JSON.parse(text);
+  } catch {
+    alert(`❌ НЕ JSON, дивись текст вище`);
+  }
   if (!room.players) {
     console.error("room.players немає", room);
     return;
-  }
+  } 
 
   players = room.players.map(p => ({
     name: p.name,
@@ -221,8 +229,7 @@ async function connectToServer() {
 
   if(myPlayerIndex === -1) {
     alert("Ви не в цій кімнаті");
-  }
-  
+  };
   renderPlayers();
 
 }
