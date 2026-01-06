@@ -14,7 +14,7 @@ if (!chatId) {
   alert("Немає chatId. Відкрий гру з групи / чату");
   throw new Error("No chatId");
 }
-const API = 'https://95c153403893.ngrok-free.app';
+const API = 'https://server-monopoly-tg.onrender.com';
 
 
 /* Масив клітинок з назвами і фон-картинками */
@@ -200,21 +200,25 @@ function sleep(ms) {
 }
 
 async function connectToServer() {
+
+   // 🔑 1. Завжди реєструємо гравця
+  await fetch(`${API}/room/${chatId}/join`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+    id: myTgId,
+    name: tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name
+    })
+  });
+
+
   const res = await fetch(`${API}/room/${chatId}`);
-  const text = await res.json();
-  alert(text);
+  const room = await res.json();
 
-
-  let room;
-  try{
-    room = JSON.parse(text);
-  } catch {
-    alert(`❌ НЕ JSON, дивись текст вище`);
-  }
   if (!room.players) {
     console.error("room.players немає", room);
     return;
-  } 
+  }
 
   players = room.players.map(p => ({
     name: p.name,
