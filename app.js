@@ -237,4 +237,29 @@ async function connectToServer() {
   renderPlayers();
 
 }
+
+async function syncRoom() {
+  try{
+    const res = await fetch(`${API}/room/${chatId}`);
+    const room = await res.json();
+
+    if(!room.players) return;
+
+    players = room.players.map(p => ({
+      name: p.name,
+      pos: p.pos,
+      money: p.money,
+      color: p.color,
+      tgId: p.id
+    }));
+
+    currentTurn = room.currentTurn || 0;
+    myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
+    
+    renderPlayers();
+  } catch(e) {
+    console.error("Sync error", e);
+  }
+}
 connectToServer();
+setInterval(syncRoom, 2000);
