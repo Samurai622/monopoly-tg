@@ -15,6 +15,7 @@ if (!chatId) {
   throw new Error("No chatId");
 }
 const API = 'https://server-monopoly-tg.onrender.com';
+let isAnimatingMove = false;
 
 
 /* Масив клітинок з назвами і фон-картинками */
@@ -145,7 +146,9 @@ let isRolling = false;
 async function rollDice() {
     if (currentTurn !== myPlayerIndex) return;
     if (isRolling) return;
+
     isRolling = true;
+    isAnimatingMove = true;
     const d1 = rand(1, 6);
     const d2 = rand(1, 6);
     const steps = d1 + d2;
@@ -157,7 +160,6 @@ async function rollDice() {
     // наступний гравець
     currentTurn = (currentTurn + 1) % players.length;
     renderPlayers();
-    isRolling = false;
 
     await fetch(`${API}/room/${chatId}/move`, {
       method: 'POST',
@@ -169,6 +171,8 @@ async function rollDice() {
         currentTurn: currentTurn
       })
     });
+    isAnimatingMove = false;
+    isRolling = false;
 }
 
 function rand(min, max) {
@@ -223,6 +227,8 @@ async function connectToServer() {
 
 
 async function syncRoom() {
+  if(isAnimatingMove) return;
+  
   try{
     const res = await fetch(`${API}/room/${chatId}`);
     const room = await res.json();
