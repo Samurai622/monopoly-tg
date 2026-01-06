@@ -69,34 +69,34 @@ const cells = [];
 
 
 cellsData.forEach((data, i) => {
-const cell = document.createElement("div");
-cell.className = `cell`;
-cell.dataset.id = i;
-cell.style.backgroundImage = `url('${data.img}')`; // фонова картинка
-cells.push(cell);
-board.appendChild(cell);
+  const cell = document.createElement("div");
+  cell.className = `cell`;
+  cell.dataset.id = i;
+  cell.style.backgroundImage = `url('${data.img}')`; // фонова картинка
+  cells.push(cell);
+  board.appendChild(cell);
 });
 
 /* Розкладка клітинок по 11x11 */
 cells.forEach((cell, i) => {
-let row, col;
+  let row, col;
 
-if (i <= 10) {             // низ
-    row = 11;
-    col = 11 - i;
-} else if (i <= 20) {      // ліво
-    row = 21 - i;
-    col = 1;
-} else if (i <= 30) {      // верх
-    row = 1;
-    col = i - 19;
-} else {                   // право
-    row = i - 29;
-    col = 11;
-}
+  if (i <= 10) {             // низ
+      row = 11;
+      col = 11 - i;
+  } else if (i <= 20) {      // ліво
+      row = 21 - i;
+      col = 1;
+  } else if (i <= 30) {      // верх
+      row = 1;
+      col = i - 19;
+  } else {                   // право
+      row = i - 29;
+      col = 11;
+  }
 
-cell.style.gridRow = row;
-cell.style.gridColumn = col;
+  cell.style.gridRow = row;
+  cell.style.gridColumn = col;
 });
 let players = [
 ]
@@ -107,27 +107,27 @@ const diceResult = document.getElementById("diceResult");
 let currentTurn = 0;
 
 function renderPlayers() {
-playersBox.innerHTML = "<h2>Гравці</h2>";
+  playersBox.innerHTML = "<h2>Гравці</h2>";
+  diseResult.innerText = "";
 
-document.querySelectorAll(".token").forEach(t => t.remove());
+  document.querySelectorAll(".token").forEach(t => t.remove());
 
-players.forEach((p, i) => {
-    const div = document.createElement("div");
-    div.className = "player" + (i === currentTurn ? " active" : "");
-    div.style.borderLeftColor = p.color;
+  players.forEach((p, i) => {
+      const div = document.createElement("div");
+      div.className = "player" + (i === currentTurn ? " active" : "");
+      div.style.borderLeftColor = p.color;
 
-    div.innerHTML = `
-    <b>${p.name}</b>
-    <div class="money">💰 ${p.money}</div>
-    `;
+      div.innerHTML = `
+      <b>${p.name}</b>
+      <div class="money">💰 ${p.money}</div>
+      `;
 
-    playersBox.appendChild(div);
-    addToken(p.pos, p.color);
-});
+      playersBox.appendChild(div);
+      addToken(p.pos, p.color);
+  });
+  
 updateRollButton();
 }
-
-
 
 /* Тестові фішки */
 function addToken(cellId, color) {
