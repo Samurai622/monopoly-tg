@@ -16,6 +16,7 @@ if (!chatId) {
 }
 const API = 'https://server-monopoly-tg.onrender.com';
 let isAnimatingMove = false;
+let pendingRoom = null;
 
 
 /* Масив клітинок з назвами і фон-картинками */
@@ -144,51 +145,34 @@ rollBtn.addEventListener("click", rollDice);
 let isRolling = false;
 
 async function rollDice() {
-    if (currentTurn !== myPlayerIndex) return;
-    if (isRolling) return;
+  if (currentTurn !== myPlayerIndex) return;
+  if (isRolling) return;
 
-    isRolling = true;
-    isAnimatingMove = true;
-    const d1 = rand(1, 6);
-    const d2 = rand(1, 6);
-    const steps = d1 + d2;
+  isRolling = true;
 
-    diceResult.innerText = `🎲 ${d1} + ${d2} = ${steps}`;
+  const d1 = rand(1,6);
+  const d2 = rand(1,6);
+  const steps = d1 + d2;
 
-    await movePlayer(currentTurn, steps);
+  diceResult.innerText = `🎲 ${d1} + ${d2} = ${steps}`;
 
-    // наступний гравець
-    currentTurn = (currentTurn + 1) % players.length;
-    renderPlayers();
+  await fetch(`${API}/room/${chatId}/move`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      playerId: myTgId,
+      steps
+    })
+  });
 
-    await fetch(`${API}/room/${chatId}/move`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        playerId: myTgId,
-        pos: players[myPlayerIndex].pos,
-        money: players[myPlayerIndex].money,
-        currentTurn: currentTurn
-      })
-    });
-    isAnimatingMove = false;
-    isRolling = false;
+  isRolling = false;
 }
+
 
 function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-async function movePlayer(playerIndex, steps) {
-    for (let i = 0; i < steps; i++) {
-        players[playerIndex].pos =
-            (players[playerIndex].pos + 1) % cellsData.length;
-
-        renderPlayers();
-
-        await sleep(300);
-    }
-}
 
     
 function updateRollButton() {
@@ -227,29 +211,58 @@ async function connectToServer() {
 
 
 async function syncRoom() {
-  if(isAnimatingMove) return;
-  
-  try{
+  try {
     const res = await fetch(`${API}/room/${chatId}`);
     const room = await res.json();
+    if (!room.players) return;
 
-    if(!room.players) return;
+    if (isAnimatingMove) {
+      pendingRoom = room;
+      return;
+    }
 
-    players = room.players.map(p => ({
-      name: p.name,
-      pos: p.pos,
-      money: p.money,
-      color: p.color,
-      tgId: p.id
-    }));
-
-    currentTurn = room.currentTurn || 0;
-    myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
-    
-    renderPlayers();
-  } catch(e) {
-    console.error("Sync error", e);
+    await applyRoom(room);
+  } catch (e) {
+    console.error(e);
   }
 }
+
+async function applyRoom(room) {
+  if (players.length === 0) {
+    players = room.players.map(p => ({ ...p, tgId: p.id }));
+    currentTurn = room.currentTurn;
+    myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
+    renderPlayers();
+    return;
+  }
+
+  isAnimatingMove = true;
+  await animateTo(room.players);
+  currentTurn = room.currentTurn;
+  myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
+  isAnimatingMove = false;
+
+  if (pendingRoom) {
+    const r = pendingRoom;
+    pendingRoom = null;
+    await applyRoom(r);
+  }
+}
+
+
+async function animateTo(serverPlayers) {
+  for (const sp of serverPlayers) {
+    const p = players.find(pl => pl.tgId === sp.id);
+    if (!p) continue;
+
+    let steps = (sp.pos - p.pos + 40) % 40;
+    for (let s = 0; s < steps; s++) {
+      p.pos = (p.pos + 1) % 40;
+      renderPlayers();
+      await sleep(200);
+    }
+  }
+}
+
 connectToServer();
 setInterval(syncRoom, 2000);
