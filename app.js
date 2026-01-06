@@ -108,7 +108,7 @@ let currentTurn = 0;
 
 function renderPlayers() {
   playersBox.innerHTML = "<h2>Гравці</h2>";
-  diseResult.innerText = "";
+  diceResult.innerText = "";
 
   document.querySelectorAll(".token").forEach(t => t.remove());
 
@@ -125,7 +125,7 @@ function renderPlayers() {
       playersBox.appendChild(div);
       addToken(p.pos, p.color);
   });
-  
+
 updateRollButton();
 }
 
@@ -200,43 +200,27 @@ function sleep(ms) {
 }
 
 async function connectToServer() {
+  const res = await fetch(`${API}/room/${chatId}`);
+  const room = await res.json();
 
-   // 🔑 1. Завжди реєструємо гравця
+  if (!room.players || room.players.length === 0) {
+    playersBox.innerHTML = "<h2>Гравці</h2><p>⏳ Очікуємо старт гри...</p>";
+    return;
+  }
+
+  // 🔑 реєструємо гравця тільки якщо кімната активна
   await fetch(`${API}/room/${chatId}/join`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-    id: myTgId,
-    name: tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name
+      id: myTgId,
+      name: tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name
     })
   });
 
-
-  const res = await fetch(`${API}/room/${chatId}`);
-  const room = await res.json();
-
-  if (!room.players) {
-    console.error("room.players немає", room);
-    return;
-  }
-
-  players = room.players.map(p => ({
-    name: p.name,
-    pos: p.pos,
-    money: p.money,
-    color: p.color,
-    tgId: p.id
-  }));
-
-  myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
-  currentTurn = room.currentTurn || 0;
-
-  if(myPlayerIndex === -1) {
-    alert("Ви не в цій кімнаті");
-  };
-  renderPlayers();
-
+  syncRoom();
 }
+
 
 async function syncRoom() {
   try{
