@@ -250,6 +250,9 @@ async function applyRoom(room) {
   myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
   isAnimatingMove = false;
 
+  renderPlayers();
+  updateRollButton();
+
   if (pendingRoom) {
     const r = pendingRoom;
     pendingRoom = null;
