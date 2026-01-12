@@ -200,10 +200,6 @@ async function connectToServer() {
   const res = await fetch(`${API}/room/${chatId}`);
   const room = await res.json();
 
-  if (!room.players || room.players.length === 0) {
-    playersBox.innerHTML = "<h2>Гравці</h2><p>⏳ Очікуємо старт гри...</p>";
-    return;
-  }
   if(!room.active) {
     document.body.innerHTML = `
     <h1 style="text-aling:center;margin-top:50px;">
