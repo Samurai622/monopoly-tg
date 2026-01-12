@@ -144,6 +144,7 @@ token.className = `token ${color}`;
 const offset = indexInCell * 14;
 token.style.left = offset + "px";
 token.style.top = offset + "px";
+console.log("TOKEN:", cellId, color, indexInCell);
 
 cell.appendChild(token);
 }
@@ -203,7 +204,7 @@ async function connectToServer() {
     playersBox.innerHTML = "<h2>Гравці</h2><p>⏳ Очікуємо старт гри...</p>";
     return;
   }
-  
+
   syncRoom();
 }
 
