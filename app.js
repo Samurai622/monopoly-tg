@@ -199,14 +199,6 @@ function sleep(ms) {
 async function connectToServer() {
   const res = await fetch(`${API}/room/${chatId}`);
   const room = await res.json();
-  await fetch(`${API}/room/${chatId}/join`, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      id: myTgId,
-      name: tg.initDataUnsafe.user.first_name
-    })
-  });
 
   if(!room.active) {
     document.body.innerHTML = `
