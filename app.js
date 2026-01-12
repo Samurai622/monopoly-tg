@@ -134,14 +134,14 @@ updateRollButton();
 }
 
 /* Тестові фішки */
-function addToken(cellId, color) {
+function addToken(cellId, color, indexInCell) {
 const cell = document.querySelector(`[data-id='${cellId}']`);
 if (!cell) return;
 
 const token = document.createElement("div");
 token.className = `token ${color}`;
 
-const offset = indexInCell * 12;
+const offset = indexInCell * 14;
 token.style.left = offset + "px";
 token.style.top = offset + "px";
 
