@@ -203,17 +203,7 @@ async function connectToServer() {
     playersBox.innerHTML = "<h2>Гравці</h2><p>⏳ Очікуємо старт гри...</p>";
     return;
   }
-
-  // 🔑 реєструємо гравця тільки якщо кімната активна
-  await fetch(`${API}/room/${chatId}/join`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: myTgId,
-      name: tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name
-    })
-  });
-
+  
   syncRoom();
 }
 
