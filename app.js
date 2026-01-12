@@ -164,6 +164,7 @@ async function rollDice() {
       steps
     })
   });
+  await syncRoom();
 
   isRolling = false;
 }
@@ -237,9 +238,12 @@ async function applyRoom(room) {
   }
 
   isAnimatingMove = true;
+
   await animateTo(room.players);
+  players = room.players.map(p => ({ ...p, tgId: p.id }));
   currentTurn = room.currentTurn;
   myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
+  
   isAnimatingMove = false;
 
   if (pendingRoom) {
