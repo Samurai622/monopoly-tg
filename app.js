@@ -125,7 +125,9 @@ function renderPlayers() {
       `;
 
       playersBox.appendChild(div);
-      addToken(p.pos, p.color);
+      const sameCellPlayers = players.filter(pl => pl.pos === p.pos);
+      const index = sameCellPlayers.indexOf(p);
+      addToken(p.pos, p.color, index);
   });
 
 updateRollButton();
@@ -138,6 +140,11 @@ if (!cell) return;
 
 const token = document.createElement("div");
 token.className = `token ${color}`;
+
+const offset = indexInCell * 12;
+token.style.left = offset + "px";
+token.style.top = offset + "px";
+
 cell.appendChild(token);
 }
 
@@ -238,12 +245,9 @@ async function applyRoom(room) {
   }
 
   isAnimatingMove = true;
-
   await animateTo(room.players);
-  players = room.players.map(p => ({ ...p, tgId: p.id }));
   currentTurn = room.currentTurn;
   myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
-  
   isAnimatingMove = false;
 
   if (pendingRoom) {
