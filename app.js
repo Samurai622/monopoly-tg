@@ -204,6 +204,15 @@ async function connectToServer() {
     playersBox.innerHTML = "<h2>Гравці</h2><p>⏳ Очікуємо старт гри...</p>";
     return;
   }
+  if(!room.active) {
+    document.body.innerHTML = `
+    <h1 style="text-aling:center;margin-top:50px;">
+      ⛔ Гру завершено
+      </h1>
+      <p style="text-aling:center;">Поверніться до Telegram</p>
+      `;
+      return;
+  }
 
   syncRoom();
 }
