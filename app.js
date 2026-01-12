@@ -192,6 +192,7 @@ function updateRollButton() {
     }
 }
 
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -247,6 +248,7 @@ async function applyRoom(room) {
   isAnimatingMove = false;
 
   renderPlayers();
+  updateActionButtons();
   updateRollButton();
 
   if (pendingRoom) {
@@ -270,6 +272,24 @@ async function animateTo(serverPlayers) {
     }
   }
 }
+
+function updateActionButtons() {
+  const isMyTurn = currentTurn === myPlayerIndex;
+  surrenderBtn.style.display ? 'block' : 'none';
+}
+
+surrenderBtn.addEventListener('click', async () => {
+  const confirmSurrender = confirm("Ви дійсно хочете здатися?");
+  if(!confirmSurrender) return;
+
+  await fetch(`${API}/room/${chatId}/surrender`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ playerId: myTgId})
+  });
+
+  await syncRoom();
+});
 
 connectToServer();
 setInterval(syncRoom, 2000);

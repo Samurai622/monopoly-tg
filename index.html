@@ -13,6 +13,10 @@
       <h2>Гравці</h2>
     </div>
 
+    <div id="actionPanel">
+      <button id="surrenderBtn">Здатися</button>
+    </div>
+
     <div id="game">
       <div id="controls">
         <button id="rollBtn">🎲 Кинути кубики</button>
@@ -24,6 +28,19 @@
     </div>
 
   </div>
+  <pre id="debug" style="
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 40%;
+  overflow: auto;
+  background: black;
+  color: lime;
+  font-size: 12px;
+  z-index: 9999;
+  "></pre>
+
 
   <script src="./app.js"></script>
 </body>
