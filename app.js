@@ -117,7 +117,8 @@ function renderPlayers() {
   players.forEach((p, i) => {
       const div = document.createElement("div");
       div.className = "player" + (i === currentTurn ? " active" : "");
-      div.style.borderLeftColor = p.color;
+      div.style.borderLeftColor = p.active ? p.color : 'gray';
+      div.style.opacity = p.active ? 1 : 0.5;
 
       div.innerHTML = `
       <b>${p.name}</b>
@@ -127,7 +128,7 @@ function renderPlayers() {
       playersBox.appendChild(div);
       const sameCellPlayers = players.filter(pl => pl.pos === p.pos);
       const index = sameCellPlayers.indexOf(p);
-      addToken(p.pos, p.color, index);
+      addToken(p.pos, p.active ? p.color : 'gray', index);
   });
 
 updateRollButton();
@@ -141,7 +142,7 @@ if (!cell) return;
 const token = document.createElement("div");
 token.className = `token ${color}`;
 
-const offset = indexInCell * 12;
+const offset = indexInCell * 6;
 token.style.left = offset + "px";
 token.style.top = offset + "px";
 console.log("TOKEN:", cellId, color, indexInCell);
@@ -273,14 +274,12 @@ async function animateTo(serverPlayers) {
   }
 }
 
-function updateActionButtons() {
-  const isMyTurn = currentTurn === myPlayerIndex;
-  surrenderBtn.style.display ? 'block' : 'none';
-}
+const surrenderBtn = document.getElementById('surrenderBtn');
 
 surrenderBtn.addEventListener('click', async () => {
   const confirmSurrender = confirm("Ви дійсно хочете здатися?");
   if(!confirmSurrender) return;
+  if(currentTurn !== myPlayerIndex) return;
 
   await fetch(`${API}/room/${chatId}/surrender`, {
     method: 'POST',
