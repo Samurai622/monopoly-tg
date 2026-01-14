@@ -128,7 +128,7 @@ function renderPlayers() {
       playersBox.appendChild(div);
       const sameCellPlayers = players.filter(pl => pl.pos === p.pos);
       const index = sameCellPlayers.indexOf(p);
-      addToken(p.pos, p.active ? p.color : 'gray', index);
+      addToken(p.pos, p.active ? p.color : 'gray',  index);
   });
 
 updateRollButton();
@@ -184,7 +184,6 @@ function rand(min, max) {
 }
 
 
-    
 function updateRollButton() {
     if(currentTurn === myPlayerIndex) {
         rollBtn.style.display = "block";
@@ -289,6 +288,22 @@ surrenderBtn.addEventListener('click', async () => {
 
   await syncRoom();
 });
+
+const tradeBtn = document.getElementById('tradeBtn');
+
+tradeBtn.addEventListener('click', () => {
+  alert("В розробці");
+});
+
+function updateActionButtons() {
+  const me = players[myPlayerIndex];
+  if(!me) return;
+
+  const catAct = currentTurn === myPlayerIndex && me.active;
+
+  surrenderBtn.style.display = catAct ? "inline-block" : "none";
+  tradeBtn.style.display = catAct ? "inline-block" : "none";
+}
 
 connectToServer();
 setInterval(syncRoom, 2000);

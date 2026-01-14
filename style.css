@@ -125,3 +125,24 @@ body {
   color: #38bdf8;
 }
 
+#actionPanel {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+#actionPanel button {
+  padding: 6px 10px;
+  font-size: 13px;
+  background: #020617;
+  color: white;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#actionPanel button:hover {
+  background: #082f49;
+}
+
