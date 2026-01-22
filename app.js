@@ -142,7 +142,7 @@ if (!cell) return;
 const token = document.createElement("div");
 token.className = `token ${color}`;
 
-const offset = indexInCell * 6;
+const offset = indexInCell * 8;
 token.style.left = offset + "px";
 token.style.top = offset + "px";
 console.log("TOKEN:", cellId, color, indexInCell);
