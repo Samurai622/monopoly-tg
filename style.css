@@ -98,10 +98,13 @@ body {
   right: 2px;
 }
 
-.red { background: red; }
-.blue { background: dodgerblue; }
-.green { background: limegreen; }
-.yellow { background: gold; }
+.token.red { background: #ff4d4d; }
+.token.green { background: #4caf50; }
+.token.yellow { background: #ffeb3b; }
+.token.purple { background: #9c27b0; }
+.token.orange { background: #ff9800; }
+.token.brown { background: #795548; }
+.token.gray { background: #9e9e9e; }
 
 #controls {
   position: absolute;
