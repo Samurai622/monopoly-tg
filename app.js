@@ -199,6 +199,16 @@ function sleep(ms) {
 
 async function connectToServer() {
   const res = await fetch(`${API}/room/${chatId}/state`);
+  if(!res.ok) {
+    document.body.innerHTML = `
+    <h1 style="text-aling:center;margin-top:50px;">
+      ⛔ Гру завершено
+      </h1>
+      <p style="text-aling:center;">Поверніться до Telegram</p>
+      `;
+      return;
+  }
+
   const room = await res.json();
 
   if(!room.active) {
@@ -211,13 +221,15 @@ async function connectToServer() {
       return;
   }
 
-  syncRoom();
+  await syncRoom(room);
 }
 
 
 async function syncRoom() {
   try {
     const res = await fetch(`${API}/room/${chatId}/state`);
+    if(!res.ok) return;
+    
     const room = await res.json();
     if (!room.players) return;
 
