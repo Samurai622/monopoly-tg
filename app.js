@@ -1,15 +1,12 @@
   const tg = window.Telegram.WebApp;
   tg.expand();
 
-  const DEBUG = true;
-  const myTgId = DEBUG ? 7397166312 : tg.initDataUnsafe?.user?.id;
-
   if (!tg.initDataUnsafe?.user) {
     alert("Відкрий гру через Telegram");
     throw new Error("No Telegram user");
   }
 
-  //const myTgId = Number(tg.initDataUnsafe.user.id);
+  const myTgId = 7397166312; //tg.initDataUnsafe.user.id;
   const urlParams = new URLSearchParams(window.location.search);
   const chatId = urlParams.get('chatId');
 
@@ -21,6 +18,26 @@
   let isAnimatingMove = false;
   let pendingRoom = null;
 
+  function debug(msg) {
+  let d = document.getElementById("debug");
+  if (!d) {
+    d = document.createElement("pre");
+    d.id = "debug";
+    d.style.position = "fixed";
+    d.style.bottom = "0";
+    d.style.left = "0";
+    d.style.right = "0";
+    d.style.maxHeight = "40%";
+    d.style.overflow = "auto";
+    d.style.background = "#000";
+    d.style.color = "#0f0";
+    d.style.fontSize = "12px";
+    d.style.padding = "8px";
+    d.style.zIndex = "99999";
+    document.body.appendChild(d);
+  }
+  d.textContent += msg + "\n";
+}
 
   /* Масив клітинок з назвами і фон-картинками */
   const cellsData = [
@@ -159,10 +176,26 @@
   let isRolling = false;
 
   async function rollDice() {
-    if (isRolling) return;
+    debug("---- ROLL CLICK ----");
+
+    debug("myTgId = " + myTgId);
+    debug("currentTurn = " + currentTurn);
+    debug("players[currentTurn]?.id = " + players[currentTurn]?.id);
+
+    if (isRolling) {
+      debug("BLOCK: isRolling");
+      return;
+    }
 
     const turnTgId = Number(players[currentTurn]?.id);
-    if(!Number.isFinite(turnTgId) || turnTgId !== Number(myTgId)) return;
+    if (!Number.isFinite(turnTgId)) {
+      debug("BLOCK: turnId invalid (NaN)");
+      return;
+    }
+    if (turnTgId !== myTgId) {
+      debug("BLOCK: NOT YOUR TURN");
+      return;
+    }
 
     isRolling = true;
     try {
@@ -181,14 +214,17 @@
         })
       });
 
-      if(!r.ok) {
+      debug("MOVE status=" + r.status);
+
+
+      if (!r.ok) {
         const t = await r.text().catch(() => '');
+        debug("MOVE ERROR " + r.status + ": " + t);
         alert(`MOVE ERROR ${r.status}: ${t}`);
-        isRolling = false;
         return;
       }
 
-      alert(`myTgId=${myTgId}\nturnTgId=${players[currentTurn]?.id}`);
+      debug(`AFTER MOVE click: myTgId=${myTgId} turnTgId=${players[currentTurn]?.id}`);
 
       await syncRoom();
     } finally {
@@ -246,6 +282,8 @@
       if(!res.ok) return;
 
       const room = await res.json();
+      debug("SYNC: got room");
+      debug("SYNC currentTurn=" + room.currentTurn + " raw=" + room.current_turn);
       if (!room.players) return;
 
       if (isAnimatingMove) {
@@ -260,6 +298,13 @@
   }
 
   async function applyRoom(room) {
+    debug("=== APPLY ROOM ===");
+    debug("room.currentTurn = " + room.currentTurn);
+    debug("players from server:");
+
+    room.players.forEach(p => {
+      debug(" - server player tg_id=" + p.id + " pos=" + p.pos);
+    });
     if (players.length === 0) {
       players = room.players.map(p => ({ ...p, id: Number(p.id) }));
       currentTurn = Number(room.currentTurn);
