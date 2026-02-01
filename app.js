@@ -1,10 +1,10 @@
   const tg = window.Telegram.WebApp;
   tg.expand();
 
-  if (!tg.initDataUnsafe?.user) {
-    alert("Відкрий гру через Telegram");
-    throw new Error("No Telegram user");
-  }
+  //if (!tg.initDataUnsafe?.user) {
+   // alert("Відкрий гру через Telegram");
+   // throw new Error("No Telegram user");
+ // }
 
   const myTgId = 7397166312; //tg.initDataUnsafe.user.id;
   const urlParams = new URLSearchParams(window.location.search);
