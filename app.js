@@ -156,8 +156,8 @@ rollBtn.addEventListener("click", rollDice);
 let isRolling = false;
 
 async function rollDice() {
-  if (currentTurn !== myPlayerIndex) return;
-  if (isRolling) return;
+  const turnTgId = Number(players[currentTurn]?.tgId);
+  if(turnTgId !== Number(myTgId)) return;
 
   isRolling = true;
 
@@ -182,6 +182,8 @@ async function rollDice() {
     isRolling = false;
     return;
   }
+
+  alert(`myTgId=${myTgId}\nturnTgId=${players[currentTurn]?.tgId}`);
 
   await syncRoom();
 
@@ -256,9 +258,9 @@ async function syncRoom() {
 
 async function applyRoom(room) {
   if (players.length === 0) {
-    players = room.players.map(p => ({ ...p, tgId: Number(p.id) }));
+    players = room.players.map(p => ({ ...p, id: Number(p.id) }));
     currentTurn = Number(room.currentTurn);
-    myPlayerIndex = players.findIndex(p => p.tgId === Number(myTgId));
+    myPlayerIndex = players.findIndex(p => p.id === Number(myTgId));
     renderPlayers();
     return;
   }
@@ -266,9 +268,9 @@ async function applyRoom(room) {
   isAnimatingMove = true;
   await animateTo(room.players);
   currentTurn = Number(room.currentTurn);
-  myPlayerIndex = players.findIndex(p => p.tgId === Number(myTgId));
+  myPlayerIndex = players.findIndex(p => p.id === Number(myTgId));
   for (const sp of room.players) {
-    const p = players.find(pl => pl.tgId === Number(sp.id));
+    const p = players.find(pl => pl.id === Number(sp.id));
     if (!p) continue;
     p.pos = Number(sp.pos);
     p.money = sp.money;
