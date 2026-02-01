@@ -109,29 +109,31 @@ const diceResult = document.getElementById("diceResult");
 let currentTurn = 0;
 
 function renderPlayers() {
-  playersBox.innerHTML = "<h2>Гравці</h2>";
+  playersBox.querySelectorAll(".player").forEach(p => p.remove());
   diceResult.innerText = "";
 
   document.querySelectorAll(".token").forEach(t => t.remove());
 
   players.forEach((p, i) => {
-      const div = document.createElement("div");
-      div.className = "player" + (i === currentTurn ? " active" : "");
-      div.style.borderLeftColor = p.active ? p.color : 'gray';
-      div.style.opacity = p.active ? 1 : 0.5;
+    const div = document.createElement("div");
+    div.className = "player" + (i === currentTurn ? " active" : "");
+    div.style.borderLeftColor = p.active ? p.color : 'gray';  
+    div.style.opacity = p.active ? 1 : 0.5;
 
-      div.innerHTML = `
+    div.innerHTML = `
       <b>${p.name}</b>
       <div class="money">💰 ${p.money}</div>
       `;
 
-      playersBox.appendChild(div);
-      const sameCellPlayers = players.filter(pl => pl.pos === p.pos);
-      const index = sameCellPlayers.indexOf(p);
-      addToken(p.pos, p.active ? p.color : 'gray',  index);
+    playersBox.appendChild(div);
+
+    const sameCellPlayers = players.filter(pl => pl.pos === p.pos);
+    const index = sameCellPlayers.indexOf(p);
+    addToken(p.pos, p.active ? p.color : 'gray', index);
   });
 
-updateRollButton();
+  updateRollButton();
+  updateActionButtons();
 }
 
 /* Тестові фішки */
@@ -169,7 +171,7 @@ async function rollDice() {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
-      playerId: myTgId,
+      playerId: Number(myTgId),
       steps
     })
   });
@@ -221,7 +223,7 @@ async function connectToServer() {
       return;
   }
 
-  await syncRoom(room);
+  await applyRoom(room);
 }
 
 
@@ -229,7 +231,7 @@ async function syncRoom() {
   try {
     const res = await fetch(`${API}/room/${chatId}/state`);
     if(!res.ok) return;
-    
+
     const room = await res.json();
     if (!room.players) return;
 
@@ -246,17 +248,24 @@ async function syncRoom() {
 
 async function applyRoom(room) {
   if (players.length === 0) {
-    players = room.players.map(p => ({ ...p, tgId: p.id }));
-    currentTurn = room.currentTurn;
-    myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
+    players = room.players.map(p => ({ ...p, tgId: Number(p.id) }));
+    currentTurn = Number(room.currentTurn);
+    myPlayerIndex = players.findIndex(p => p.tgId === Number(myTgId));
     renderPlayers();
     return;
   }
 
   isAnimatingMove = true;
   await animateTo(room.players);
-  currentTurn = room.currentTurn;
-  myPlayerIndex = players.findIndex(p => p.tgId === myTgId);
+  currentTurn = Number(room.currentTurn);
+  myPlayerIndex = players.findIndex(p => p.tgId === Number(myTgId));
+  for (const sp of room.players) {
+    const p = players.find(pl => pl.tgId === Number(sp.id));
+    if (!p) continue;
+    p.money = sp.money;
+    p.active = sp.active;
+    p.color = sp.color;
+  }
   isAnimatingMove = false;
 
   renderPlayers();
@@ -273,10 +282,11 @@ async function applyRoom(room) {
 
 async function animateTo(serverPlayers) {
   for (const sp of serverPlayers) {
-    const p = players.find(pl => pl.tgId === sp.id);
+    const p = players.find(pl => pl.tgId === Number(sp.id));
     if (!p) continue;
 
-    let steps = (sp.pos - p.pos + 40) % 40;
+    const spPos = Number(sp.pos);
+    let steps = (spPos - p.pos + 40) % 40;
     for (let s = 0; s < steps; s++) {
       p.pos = (p.pos + 1) % 40;
       renderPlayers();
