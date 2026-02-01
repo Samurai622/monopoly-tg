@@ -6,7 +6,7 @@ if (!tg.initDataUnsafe?.user) {
   throw new Error("No Telegram user");
 }
 
-const myTgId = tg.initDataUnsafe.user.id;
+const myTgId = Number(tg.initDataUnsafe.user.id);
 const urlParams = new URLSearchParams(window.location.search);
 const chatId = urlParams.get('chatId');
 
@@ -156,38 +156,41 @@ rollBtn.addEventListener("click", rollDice);
 let isRolling = false;
 
 async function rollDice() {
-  const turnTgId = Number(players[currentTurn]?.tgId);
-  if(turnTgId !== Number(myTgId)) return;
+  if (isRolling) return;
+
+  const turnTgId = Number(players[currentTurn]?.id);
+  if(!Number.isFinite(turnTgId) || turnTgId !== Number(myTgId)) return;
 
   isRolling = true;
+  try {
+    const d1 = rand(1,6);
+    const d2 = rand(1,6);
+    const steps = d1 + d2;
 
-  const d1 = rand(1,6);
-  const d2 = rand(1,6);
-  const steps = d1 + d2;
+    diceResult.innerText = `🎲 ${d1} + ${d2} = ${steps}`;
 
-  diceResult.innerText = `🎲 ${d1} + ${d2} = ${steps}`;
+    const r = await fetch(`${API}/room/${chatId}/move`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        playerId: Number(myTgId),
+        steps
+      })
+    });
 
-  const r = await fetch(`${API}/room/${chatId}/move`, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      playerId: Number(myTgId),
-      steps
-    })
-  });
+    if(!r.ok) {
+      const t = await r.text().catch(() => '');
+      alert(`MOVE ERROR ${r.status}: ${t}`);
+      isRolling = false;
+      return;
+    }
 
-  if(!r.ok) {
-    const t = await r.text().catch(() => '');
-    alert(`MOVE ERROR ${r.status}: ${t}`);
+    alert(`myTgId=${myTgId}\nturnTgId=${players[currentTurn]?.id}`);
+
+    await syncRoom();
+  } finally {
     isRolling = false;
-    return;
   }
-
-  alert(`myTgId=${myTgId}\nturnTgId=${players[currentTurn]?.tgId}`);
-
-  await syncRoom();
-
-  isRolling = false;
 }
 
 
@@ -197,11 +200,8 @@ function rand(min, max) {
 
 
 function updateRollButton() {
-    if(currentTurn === myPlayerIndex) {
-        rollBtn.style.display = "block";
-    } else {
-        rollBtn.style.display = "none";
-    }
+    const turnId = Number(players[currentTurn]?.id);
+    rollBtn.style.display = (turnId === Number(myTgId)) ? "block" : "none";
 }
 
 
@@ -293,7 +293,7 @@ async function applyRoom(room) {
 
 async function animateTo(serverPlayers) {
   for (const sp of serverPlayers) {
-    const p = players.find(pl => pl.tgId === Number(sp.id));
+    const p = players.find(pl => pl.id === Number(sp.id));
     if (!p) continue;
 
     const spPos = Number(sp.pos);
