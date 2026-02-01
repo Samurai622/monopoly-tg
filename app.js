@@ -198,7 +198,7 @@ function sleep(ms) {
 }
 
 async function connectToServer() {
-  const res = await fetch(`${API}/room/${chatId}`);
+  const res = await fetch(`${API}/room/${chatId}/state`);
   const room = await res.json();
 
   if(!room.active) {
@@ -217,7 +217,7 @@ async function connectToServer() {
 
 async function syncRoom() {
   try {
-    const res = await fetch(`${API}/room/${chatId}`);
+    const res = await fetch(`${API}/room/${chatId}/state`);
     const room = await res.json();
     if (!room.players) return;
 
