@@ -167,7 +167,7 @@ async function rollDice() {
 
   diceResult.innerText = `🎲 ${d1} + ${d2} = ${steps}`;
 
-  await fetch(`${API}/room/${chatId}/move`, {
+  const r = await fetch(`${API}/room/${chatId}/move`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
@@ -175,6 +175,14 @@ async function rollDice() {
       steps
     })
   });
+
+  if(!r.ok) {
+    const t = await r.text().catch(() => '');
+    alert(`MOVE ERROR ${r.status}: ${t}`);
+    isRolling = false;
+    return;
+  }
+
   await syncRoom();
 
   isRolling = false;
@@ -262,6 +270,7 @@ async function applyRoom(room) {
   for (const sp of room.players) {
     const p = players.find(pl => pl.tgId === Number(sp.id));
     if (!p) continue;
+    p.pos = Number(sp.pos);
     p.money = sp.money;
     p.active = sp.active;
     p.color = sp.color;
