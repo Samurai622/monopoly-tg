@@ -6,7 +6,7 @@
     throw new Error("No Telegram user");
   }
 
-  const myTgId = tg.initDataUnsafe.user.id;
+  const myTgId = Number(tg.initDataUnsafe.user.id);
   const urlParams = new URLSearchParams(window.location.search);
   const chatId = urlParams.get('chatId');
 
@@ -173,7 +173,6 @@
       const steps = d1 + d2;
 
       diceResult.innerText = `🎲 ${d1} + ${d2} = ${steps}`;
-
       const r = await fetch(`${API}/room/${chatId}/move`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -186,7 +185,6 @@
 
       if (!r.ok) {
         const t = await r.text().catch(() => '');
-        alert(`MOVE ERROR ${r.status}: ${t}`);
         return;
       }
 
@@ -213,13 +211,24 @@
   }
 
   async function connectToServer() {
+    try {
+      await fetch(`${API}/room/${chatId}/join`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          id: String(myTgId),
+          name: tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name
+        })
+      });
+    } catch (e) {}
+
     const res = await fetch(`${API}/room/${chatId}/state`);
     if(!res.ok) {
       document.body.innerHTML = `
-      <h1 style="text-aling:center;margin-top:50px;">
+      <h1 style="text-align:center;margin-top:50px;">
         ⛔ Гру завершено
         </h1>
-        <p style="text-aling:center;">Поверніться до Telegram</p>
+        <p style="text-align:center;">Поверніться до Telegram</p>
         `;
         return;
     }
@@ -228,10 +237,10 @@
 
     if(!room.active) {
       document.body.innerHTML = `
-      <h1 style="text-aling:center;margin-top:50px;">
+      <h1 style="text-align:center;margin-top:50px;">
         ⛔ Гру завершено
         </h1>
-        <p style="text-aling:center;">Поверніться до Telegram</p>
+        <p style="text-align:center;">Поверніться до Telegram</p>
         `;
         return;
     }
