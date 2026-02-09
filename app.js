@@ -106,6 +106,7 @@
   const rollBtn = document.getElementById("rollBtn");
   const diceResult = document.getElementById("diceResult");
   let currentTurn = 0;
+  let currentTurnId = null;
 
   function renderPlayers() {
     playersBox.querySelectorAll(".player").forEach(p => p.remove());
@@ -115,7 +116,8 @@
 
     players.forEach((p, i) => {
       const div = document.createElement("div");
-      div.className = "player" + (i === currentTurn ? " active" : "");
+      const isTurn = currentTurnId && String(p.id) === String(currentTurnId);
+      div.className = "player" + (isTurn ? " active" : "");
       div.style.borderLeftColor = p.active ? p.color : 'gray';  
       div.style.opacity = p.active ? 1 : 0.5;
 
@@ -158,13 +160,8 @@
       return;
     }
 
-    const turnTgId = Number(players[currentTurn]?.id);
-    if (!Number.isFinite(turnTgId)) {
-      return;
-    }
-    if (turnTgId !== myTgId) {
-      return;
-    }
+    if(!currentTurnId) return;
+    if(String(currentTurnId) !== String(myTgId)) return;
 
     isRolling = true;
     try {
@@ -201,8 +198,10 @@
 
 
   function updateRollButton() {
-      const turnId = Number(players[currentTurn]?.id);
-      rollBtn.style.display = (turnId === Number(myTgId)) ? "block" : "none";
+    rollBtn.style.display = 
+      (currentTurnId && String(currentTurnId) === String(myTgId))
+        ? "block"
+        : "none";
   }
 
 
@@ -272,6 +271,7 @@
     if (players.length === 0) {
       players = room.players.map(p => ({ ...p, id: Number(p.id) }));
       currentTurn = Number(room.currentTurn);
+      currentTurnId = room.currentTurnId ? String(room.currentTurnId) : null;
       myPlayerIndex = players.findIndex(p => p.id === Number(myTgId));
       renderPlayers();
       return;
@@ -280,6 +280,7 @@
     isAnimatingMove = true;
     await animateTo(room.players);
     currentTurn = Number(room.currentTurn);
+    currentTurnId = room.currentTurnId ? String(room.currentTurnId) : null;
     myPlayerIndex = players.findIndex(p => p.id === Number(myTgId));
     for (const sp of room.players) {
       const p = players.find(pl => pl.id === Number(sp.id));
@@ -323,7 +324,7 @@
   surrenderBtn.addEventListener('click', async () => {
     const confirmSurrender = confirm("Ви дійсно хочете здатися?");
     if(!confirmSurrender) return;
-    if(currentTurn !== myPlayerIndex) return;
+    if(!currentTurnId || String(currentTurnId) !== String(myTgId)) return;
 
     await fetch(`${API}/room/${chatId}/surrender`, {
       method: 'POST',
@@ -344,7 +345,8 @@
     const me = players[myPlayerIndex];
     if(!me) return;
 
-    const catAct = currentTurn === myPlayerIndex && me.active;
+    const isMyTurn = currentTurnId && String(currentTurnId) === String(myTgId);
+    const catAct = isMyTurn && me.active;
 
     surrenderBtn.style.display = catAct ? "inline-block" : "none";
     tradeBtn.style.display = catAct ? "inline-block" : "none";
