@@ -14,7 +14,7 @@
     alert("Немає chatId. Відкрий гру з групи / чату");
     throw new Error("No chatId");
   }
-  const API = 'https://server-monopoly-tg.onrender.com';
+  const API = 'https://server-monopoly-tg-8um6.onrender.com';
   let isAnimatingMove = false;
   let pendingRoom = null;
 
