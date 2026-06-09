@@ -323,18 +323,24 @@
 
   const surrenderBtn = document.getElementById('surrenderBtn');
 
-  surrenderBtn.addEventListener('click', async () => {
-    const confirmSurrender = confirm("Ви дійсно хочете здатися?");
-    if(!confirmSurrender) return;
+  surrenderBtn.addEventListener('click', () => {
     if(!currentTurnId || String(currentTurnId) !== String(myTgId)) return;
 
-    await fetch(`${API}/room/${chatId}/surrender`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ playerId: myTgId})
-    });
+    tg.showConfirm("Ви дійсно хочете здатися?", async (confirmed) => {
+      if (!confirmed) return;
 
-    await syncRoom();
+      try {
+        await fetch(`${API}/room/${chatId}/surrender`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ playerId: myTgId})
+        });
+
+        await syncRoom();
+      } catch (e) {
+        console.error("Помилка здачі:", e);
+      }
+    });
   });
 
   const tradeBtn = document.getElementById('tradeBtn');
