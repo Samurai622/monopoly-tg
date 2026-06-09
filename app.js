@@ -288,6 +288,7 @@
     currentTurn = Number(room.currentTurn);
     currentTurnId = room.currentTurnId ? String(room.currentTurnId) : null;
     myPlayerIndex = players.findIndex(p => p.id === Number(myTgId));
+    currentTurnState = room.turnState || 'waiting_roll';
     for (const sp of room.players) {
       const p = players.find(pl => pl.id === Number(sp.id));
       if (!p) continue;
