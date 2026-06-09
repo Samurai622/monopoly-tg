@@ -107,6 +107,7 @@
   const diceResult = document.getElementById("diceResult");
   let currentTurn = 0;
   let currentTurnId = null;
+  let currentTurnState = 'waiting_roll';
 
   function renderPlayers() {
     playersBox.querySelectorAll(".player").forEach(p => p.remove());
@@ -159,8 +160,10 @@
     if (isRolling) {
       return;
     }
+    
 
     if(!currentTurnId) return;
+    if (currentTurnState !== 'waiting_roll') return;
     if(String(currentTurnId) !== String(myTgId)) return;
 
     isRolling = true;
@@ -275,6 +278,7 @@
       currentTurn = Number(room.currentTurn);
       currentTurnId = room.currentTurnId ? String(room.currentTurnId) : null;
       myPlayerIndex = players.findIndex(p => p.id === Number(myTgId));
+      currentTurnState = room.turnState || 'waiting_roll';
       renderPlayers();
       return;
     }
@@ -354,11 +358,71 @@
     if(!me) return;
 
     const isMyTurn = currentTurnId && String(currentTurnId) === String(myTgId);
-    const catAct = isMyTurn && me.active;
+    const canAct = isMyTurn && me.active;
 
-    surrenderBtn.style.display = catAct ? "inline-block" : "none";
-    tradeBtn.style.display = catAct ? "inline-block" : "none";
+    // Панель гравця
+    surrenderBtn.style.display = me.active ? "inline-block" : "none";
+    tradeBtn.style.display = canAct ? "inline-block" : "none";
+
+    // Панель ходу
+    const rollBtn = document.getElementById("rollBtn");
+    const endTurnBtn = document.getElementById("endTurnBtn");
+    const decisionPanel = document.getElementById("decisionPanel");
+    const buyBtn = document.getElementById("buyBtn");
+    const auctionBtn = document.getElementById("auctionBtn");
+    const payBtn = document.getElementById("payBtn");
+
+    // Ховаємо все за замовчуванням
+    rollBtn.style.display = "none";
+    endTurnBtn.style.display = "none";
+    decisionPanel.style.display = "none";
+    buyBtn.style.display = "none";
+    auctionBtn.style.display = "none";
+    payBtn.style.display = "none";
+
+    // Показуємо потрібні кнопки залежно від стану
+    if (canAct) {
+      if (currentTurnState === 'waiting_roll') {
+        rollBtn.style.display = "block";
+      } else if (currentTurnState === 'can_end') {
+        endTurnBtn.style.display = "block";
+      } else if (currentTurnState === 'must_buy') {
+        decisionPanel.style.display = "block";
+        buyBtn.style.display = "inline-block";
+        auctionBtn.style.display = "inline-block";
+      } else if (currentTurnState === 'must_pay') {
+        decisionPanel.style.display = "block";
+        payBtn.style.display = "inline-block";
+      }
+    }
   }
+
+  // Кнопка Завершити хід
+  document.getElementById('endTurnBtn').addEventListener('click', async () => {
+    if(!currentTurnId || String(currentTurnId) !== String(myTgId)) return;
+    
+    try {
+      await fetch(`${API}/room/${chatId}/end_turn`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ playerId: myTgId })
+      });
+      await syncRoom();
+    } catch (e) {
+      console.error(e);
+    }
+  });
+
+  // Заглушки для майбутніх функцій (наступний крок)
+  document.getElementById('buyBtn').addEventListener('click', () => {
+    alert("Запит на покупку! (Зробимо на сервері в наступному кроці)");
+  });
+  document.getElementById('auctionBtn').addEventListener('click', () => {
+    alert("Відкриваємо аукціон! (Скоро...)");
+  });
+  document.getElementById('payBtn').addEventListener('click', () => {
+    alert("Оплачуємо борг! (Зробимо на сервері в наступному кроці)");
+  });
 
   connectToServer();
   setInterval(syncRoom, 2000);

@@ -21,6 +21,14 @@
     <div id="game">
       <div id="controls">
         <button id="rollBtn">🎲 Кинути кубики</button>
+        <button id="endTurnBtn" style="display:none;">✅ Завершити хід</button>
+
+        <div id="decisionPanel" style="display:none; margin-top: 10px;">
+          <button id="buyBtn" class="action-btn">💳 Купити</button>
+          <button id="auctionBtn" class="action-btn">🔨 Аукціон</button>
+          <button id="payBtn" class="action-btn" style="background:#ef4444;">💸 Оплатити борг</button>
+        </div>
+
         <div id="diceResult"></div>
       </div>
       <div id="board">

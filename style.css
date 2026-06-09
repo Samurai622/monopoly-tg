@@ -149,3 +149,29 @@ body {
   background: #082f49;
 }
 
+#endTurnBtn {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+#endTurnBtn:hover {
+  background: #16a34a;
+}
+
+.action-btn {
+  padding: 8px 12px;
+  margin: 2px;
+  font-size: 13px;
+  cursor: pointer;
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+.action-btn:hover {
+  background: #0284c7;
+}
