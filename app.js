@@ -233,17 +233,6 @@
     }
 
     const room = await res.json();
-
-    if(!room.active) {
-      document.body.innerHTML = `
-      <h1 style="text-align:center;margin-top:50px;">
-        ⛔ Гру завершено
-        </h1>
-        <p style="text-align:center;">Поверніться до Telegram</p>
-        `;
-        return;
-    }
-
     await applyRoom(room);
   }
 
@@ -254,6 +243,19 @@
       if(!res.ok) return;
 
       const room = await res.json();
+
+      // Якщо гра закінчилась, показуємо екран переможця
+      if (room.status === 'stopped') {
+        document.body.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#020617;color:white;width:100vw;">
+            <h1 style="font-size:32px;margin-bottom:10px;">⛔ Гру завершено</h1>
+            <h2 style="color:#38bdf8;font-size:28px;">🏆 Переміг: ${room.winnerName || 'Невідомо'}</h2>
+            <p style="margin-top:20px;color:#94a3b8;">Поверніться до Telegram</p>
+        </div>
+        `;
+        return; // Зупиняємо подальше виконання
+      }
+
       if (!room.players) return;
 
       if (isAnimatingMove) {
